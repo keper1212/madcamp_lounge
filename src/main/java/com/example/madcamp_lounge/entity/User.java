@@ -49,40 +49,24 @@ public class User {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    // /* ---------- 생성 / 변경 로직 ---------- */
+    public void changePassword(String newPassword) {
+        this.password = newPassword;
+        this.isFirstLogin = false;
+    }
 
-    // @PrePersist
-    // protected void onCreate() {
-    // this.createdAt = LocalDateTime.now();
-    // }
-
-    // public static User create(
-    // String loginId,
-    // String password,
-    // String name) {
-    // User user = new User();
-    // user.loginId = loginId;
-    // user.password = password;
-    // user.name = name;
-    // user.isFirstLogin = true;
-    // return user;
-    // }
-
-    // public void changePassword(String newPassword) {
-    // this.password = newPassword;
-    // this.isFirstLogin = false;
-    // }
-
-    // public void updateProfile(
-    // String nickname,
-    // String mbti,
-    // String classSection,
-    // String hobby,
-    // String introduction) {
-    // this.nickname = nickname;
-    // this.mbti = mbti;
-    // this.classSection = classSection;
-    // this.hobby = hobby;
-    // this.introduction = introduction;
-    // }
+    public void updateProfile(
+        String nickname,
+        String hobby,
+        String introduction
+    ) {
+        if (nickname != null) {
+            this.nickname = nickname;
+        }
+        if (hobby != null) {
+            this.hobby = hobby;
+        }
+        if (introduction != null) {
+            this.introduction = introduction;
+        }
+    }
 }

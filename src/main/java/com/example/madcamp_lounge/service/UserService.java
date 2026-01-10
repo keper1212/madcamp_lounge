@@ -3,12 +3,15 @@ package com.example.madcamp_lounge.service;
 import java.util.Optional;
 
 import com.example.madcamp_lounge.dto.LoginRequest;
+import com.example.madcamp_lounge.dto.PasswordUpdateRequest;
+import com.example.madcamp_lounge.dto.ProfileUpdateRequest;
 import com.example.madcamp_lounge.entity.User;
 import com.example.madcamp_lounge.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
@@ -67,5 +70,44 @@ public class UserService {
 
         Optional<User> optionalUser = userRepository.findByLoginId(loginId);
         return optionalUser;
+    }
+
+    public Optional<User> updateProfile(Long userId, ProfileUpdateRequest request) {
+        if (userId == null) {
+            return Optional.empty();
+        }
+
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            return Optional.empty();
+        }
+
+        User user = optionalUser.get();
+        if (StringUtils.hasText(request.getPassword())) {
+            user.changePassword(passwordEncoder.encode(request.getPassword()));
+        }
+
+        String nickname = StringUtils.hasText(request.getNickname()) ? request.getNickname() : null;
+        String hobby = StringUtils.hasText(request.getHobby()) ? request.getHobby() : null;
+        String introduction =
+            StringUtils.hasText(request.getIntroduction()) ? request.getIntroduction() : null;
+        user.updateProfile(nickname, hobby, introduction);
+
+        return Optional.of(user);
+    }
+
+    public Optional<User> updatePassword(Long userId, PasswordUpdateRequest request) {
+        if (userId == null) {
+            return Optional.empty();
+        }
+
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            return Optional.empty();
+        }
+
+        User user = optionalUser.get();
+        user.changePassword(passwordEncoder.encode(request.getNewPw()));
+        return Optional.of(user);
     }
 }
