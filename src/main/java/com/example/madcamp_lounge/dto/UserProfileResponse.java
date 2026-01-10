@@ -15,6 +15,7 @@ public class UserProfileResponse {
     private String classSection;
     private String hobby;
     private String introduction;
+    private String university;
     private Boolean isFirstLogin;
 
     public static UserProfileResponse from(User user) {
@@ -27,6 +28,7 @@ public class UserProfileResponse {
             user.getClassSection(),
             user.getHobby(),
             user.getIntroduction(),
+            user.getUniversity(),
             user.getIsFirstLogin()
         );
     }

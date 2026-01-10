@@ -43,6 +43,9 @@ public class User {
     @Column(columnDefinition = "TEXT")
     private String introduction;
 
+    @Column(length = 100)
+    private String university;
+
     @Column(name = "is_first_login", nullable = false)
     private Boolean isFirstLogin = true;
 
