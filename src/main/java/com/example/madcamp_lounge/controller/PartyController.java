@@ -1,6 +1,7 @@
 package com.example.madcamp_lounge.controller;
 
 import com.example.madcamp_lounge.dto.PartyCreateRequest;
+import com.example.madcamp_lounge.dto.PartyDetailResponse;
 import com.example.madcamp_lounge.dto.PartyJoinRequest;
 import com.example.madcamp_lounge.dto.PartyResponse;
 import com.example.madcamp_lounge.dto.PartyUpdateRequest;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Optional;
@@ -75,6 +77,13 @@ public class PartyController {
             .map(PartyResponse::from)
             .toList();
         return ResponseEntity.ok(responses);
+    }
+
+    @GetMapping("/detail")
+    public ResponseEntity<PartyDetailResponse> detail(@RequestParam("party_id") Long partyId) {
+        return partyQueryService.getPartyDetail(partyId)
+            .map(ResponseEntity::ok)
+            .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @PatchMapping("/edit")
