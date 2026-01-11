@@ -1,0 +1,8 @@
+package com.example.madcamp_lounge.repository;
+
+import com.example.madcamp_lounge.entity.PartyMember;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface PartyMemberRepository extends JpaRepository<PartyMember, Long> {
+    boolean existsByPartyIdAndUserId(Long partyId, Long userId);
+}

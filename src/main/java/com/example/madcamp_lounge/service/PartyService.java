@@ -1,8 +1,11 @@
 package com.example.madcamp_lounge.service;
 
 import com.example.madcamp_lounge.dto.PartyCreateRequest;
+import com.example.madcamp_lounge.dto.PartyJoinRequest;
 import com.example.madcamp_lounge.dto.PartyUpdateRequest;
 import com.example.madcamp_lounge.entity.Party;
+import com.example.madcamp_lounge.entity.PartyMember;
+import com.example.madcamp_lounge.repository.PartyMemberRepository;
 import com.example.madcamp_lounge.repository.PartyRepository;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -16,6 +19,7 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class PartyService {
     private final PartyRepository partyRepository;
+    private final PartyMemberRepository partyMemberRepository;
 
     @Transactional
     public Party createParty(Long hostId, PartyCreateRequest request) {
@@ -70,6 +74,29 @@ public class PartyService {
         Integer targetCount = request.getTargetCount();
 
         party.updateDetails(title, category, appointmentTime, placeName, targetCount);
+        return Optional.of(party);
+    }
+
+    @Transactional
+    public Optional<Party> joinParty(Long userId, PartyJoinRequest request) {
+        Optional<Party> optionalParty = partyRepository.findById(request.getPartyId());
+        if (optionalParty.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Party party = optionalParty.get();
+        if (!"OPEN".equals(party.getStatus())) {
+            throw new IllegalStateException("party is not open");
+        }
+        if (partyMemberRepository.existsByPartyIdAndUserId(party.getId(), userId)) {
+            throw new IllegalStateException("already joined");
+        }
+        if (party.getCurrentCapacity() >= party.getTargetCount()) {
+            throw new IllegalStateException("party is full");
+        }
+
+        partyMemberRepository.save(new PartyMember(party.getId(), userId));
+        party.incrementCurrentCapacity();
         return Optional.of(party);
     }
 }

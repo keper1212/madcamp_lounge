@@ -110,4 +110,12 @@ public class Party {
             this.targetCount = targetCount;
         }
     }
+
+    public void incrementCurrentCapacity() {
+        if (this.currentCapacity == null) {
+            this.currentCapacity = 1;
+            return;
+        }
+        this.currentCapacity += 1;
+    }
 }
