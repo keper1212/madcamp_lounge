@@ -51,6 +51,7 @@ public class PartyService {
             "OPEN"
         );
         Party savedParty = partyRepository.save(party);
+        partyMemberRepository.save(new PartyMember(savedParty.getId(), hostId));
         ChatRoom chatRoom = chatRoomRepository.save(new ChatRoom(savedParty.getId()));
         chatRoomMemberRepository.save(new ChatRoomMember(chatRoom.getId(), hostId));
         savedParty.setChatRoomId(chatRoom.getId());
