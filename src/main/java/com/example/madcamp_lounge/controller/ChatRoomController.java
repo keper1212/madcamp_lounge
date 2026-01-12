@@ -1,5 +1,6 @@
 package com.example.madcamp_lounge.controller;
 
+import com.example.madcamp_lounge.dto.ChatRoomDetailResponse;
 import com.example.madcamp_lounge.dto.ChatRoomListResponse;
 import com.example.madcamp_lounge.service.ChatRoomQueryService;
 import java.util.List;
@@ -10,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -34,5 +36,25 @@ public class ChatRoomController {
         }
 
         return ResponseEntity.ok(chatRoomQueryService.listRooms(userId));
+    }
+
+    @GetMapping("/chatroom")
+    public ResponseEntity<ChatRoomDetailResponse> chatRoomDetail(
+        @RequestParam("room_id") Long roomId
+    ) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getPrincipal() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        try {
+            Long.parseLong(auth.getPrincipal().toString());
+        } catch (NumberFormatException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        return chatRoomQueryService.getChatRoomDetail(roomId)
+            .map(ResponseEntity::ok)
+            .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 }
