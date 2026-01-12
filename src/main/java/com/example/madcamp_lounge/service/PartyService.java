@@ -3,8 +3,12 @@ package com.example.madcamp_lounge.service;
 import com.example.madcamp_lounge.dto.PartyCreateRequest;
 import com.example.madcamp_lounge.dto.PartyJoinRequest;
 import com.example.madcamp_lounge.dto.PartyUpdateRequest;
+import com.example.madcamp_lounge.entity.ChatRoom;
+import com.example.madcamp_lounge.entity.ChatRoomMember;
 import com.example.madcamp_lounge.entity.Party;
 import com.example.madcamp_lounge.entity.PartyMember;
+import com.example.madcamp_lounge.repository.ChatRoomMemberRepository;
+import com.example.madcamp_lounge.repository.ChatRoomRepository;
 import com.example.madcamp_lounge.repository.PartyMemberRepository;
 import com.example.madcamp_lounge.repository.PartyRepository;
 import java.time.LocalDateTime;
@@ -20,6 +24,8 @@ import org.springframework.util.StringUtils;
 public class PartyService {
     private final PartyRepository partyRepository;
     private final PartyMemberRepository partyMemberRepository;
+    private final ChatRoomRepository chatRoomRepository;
+    private final ChatRoomMemberRepository chatRoomMemberRepository;
 
     @Transactional
     public Party createParty(Long hostId, PartyCreateRequest request) {
@@ -44,7 +50,11 @@ public class PartyService {
             null,
             "OPEN"
         );
-        return partyRepository.save(party);
+        Party savedParty = partyRepository.save(party);
+        ChatRoom chatRoom = chatRoomRepository.save(new ChatRoom(savedParty.getId()));
+        chatRoomMemberRepository.save(new ChatRoomMember(chatRoom.getId(), hostId));
+        savedParty.setChatRoomId(chatRoom.getId());
+        return savedParty;
     }
 
     @Transactional
@@ -102,6 +112,9 @@ public class PartyService {
         partyMemberRepository.save(new PartyMember(party.getId(), userId));
         party.incrementCurrentCapacity();
         party.updateStatusIfFull();
+        if (!chatRoomMemberRepository.existsByRoomIdAndUserId(party.getChatRoomId(), userId)) {
+            chatRoomMemberRepository.save(new ChatRoomMember(party.getChatRoomId(), userId));
+        }
         return Optional.of(party);
     }
 
@@ -124,6 +137,9 @@ public class PartyService {
         party.decrementCurrentCapacity();
         if ("FULL".equals(party.getStatus())) {
             party.updateStatusIfOpen();
+        }
+        if (party.getChatRoomId() != null) {
+            chatRoomMemberRepository.deleteByRoomIdAndUserId(party.getChatRoomId(), userId);
         }
         return Optional.of(party);
     }

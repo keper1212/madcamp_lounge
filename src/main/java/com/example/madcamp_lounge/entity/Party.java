@@ -117,6 +117,10 @@ public class Party {
         }
     }
 
+    public void setChatRoomId(Long chatRoomId) {
+        this.chatRoomId = chatRoomId;
+    }
+
     public void incrementCurrentCapacity() {
         if (this.currentCapacity == null) {
             this.currentCapacity = 1;
