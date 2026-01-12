@@ -1,5 +1,6 @@
 package com.example.madcamp_lounge.service;
 
+import com.example.madcamp_lounge.dto.ChatHistoryResponse;
 import com.example.madcamp_lounge.dto.ChatMessageResponse;
 import com.example.madcamp_lounge.dto.ChatRoomDetailResponse;
 import com.example.madcamp_lounge.dto.ChatRoomListResponse;
@@ -14,6 +15,7 @@ import com.example.madcamp_lounge.repository.ChatRoomRepository;
 import com.example.madcamp_lounge.repository.MessageRepository;
 import com.example.madcamp_lounge.repository.PartyRepository;
 import com.example.madcamp_lounge.repository.UserRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -48,10 +50,13 @@ public class ChatRoomQueryService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<ChatRoomDetailResponse> getChatRoomDetail(Long roomId) {
+    public Optional<ChatRoomDetailResponse> getChatRoomDetail(Long userId, Long roomId) {
         Optional<ChatRoom> room = chatRoomRepository.findById(roomId);
         if (room.isEmpty()) {
             return Optional.empty();
+        }
+        if (!chatRoomMemberRepository.existsByRoomIdAndUserId(roomId, userId)) {
+            throw new IllegalStateException("not a member");
         }
 
         List<ChatRoomMember> members = chatRoomMemberRepository.findByRoomId(roomId);
@@ -77,9 +82,10 @@ public class ChatRoomQueryService {
 
         boolean hasMore = false;
         if (lastMessage != null) {
-            hasMore = messageRepository.existsByRoomIdAndSentAtBefore(
+            hasMore = messageRepository.existsByRoomIdAndCursor(
                 roomId,
-                lastMessage.getSentAt()
+                lastMessage.getSentAt(),
+                lastMessage.getMessageId()
             );
         }
 
@@ -103,6 +109,61 @@ public class ChatRoomQueryService {
             memberResponses,
             messageResponses,
             lastMessage == null ? null : lastMessage.getSentAt(),
+            lastMessage == null ? null : lastMessage.getMessageId(),
+            hasMore
+        ));
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<ChatHistoryResponse> getChatHistory(
+        Long userId,
+        Long roomId,
+        LocalDateTime nextCursor,
+        Long nextCursorId
+    ) {
+        if (!chatRoomRepository.existsById(roomId)) {
+            return Optional.empty();
+        }
+        if (!chatRoomMemberRepository.existsByRoomIdAndUserId(roomId, userId)) {
+            throw new IllegalStateException("not a member");
+        }
+
+        List<Message> messages;
+        if (nextCursor == null) {
+            messages = messageRepository.findTop30ByRoomIdOrderBySentAtDesc(roomId);
+        } else if (nextCursorId != null) {
+            messages = messageRepository.findTop30ByRoomIdAndCursor(
+                roomId,
+                nextCursor,
+                nextCursorId
+            );
+        } else {
+            messages = messageRepository.findTop30ByRoomIdAndSentAtBeforeOrderBySentAtDesc(
+                roomId,
+                nextCursor
+            );
+        }
+
+        List<ChatMessageResponse> messageResponses = messages.stream()
+            .map(ChatMessageResponse::from)
+            .toList();
+        ChatMessageResponse lastMessage = messageResponses.isEmpty()
+            ? null
+            : messageResponses.get(messageResponses.size() - 1);
+
+        boolean hasMore = false;
+        if (lastMessage != null) {
+            hasMore = messageRepository.existsByRoomIdAndCursor(
+                roomId,
+                lastMessage.getSentAt(),
+                lastMessage.getMessageId()
+            );
+        }
+
+        return Optional.of(new ChatHistoryResponse(
+            messageResponses,
+            lastMessage == null ? null : lastMessage.getSentAt(),
+            lastMessage == null ? null : lastMessage.getMessageId(),
             hasMore
         ));
     }

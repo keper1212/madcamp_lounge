@@ -8,7 +8,6 @@ import com.example.madcamp_lounge.entity.User;
 import com.example.madcamp_lounge.repository.PartyMemberRepository;
 import com.example.madcamp_lounge.repository.PartyRepository;
 import com.example.madcamp_lounge.repository.UserRepository;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -24,17 +23,9 @@ public class PartyQueryService {
     private final PartyMemberRepository partyMemberRepository;
     private final UserRepository userRepository;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<PartyDetailResponse> listParties() {
         List<Party> parties = partyRepository.findAll();
-        LocalDateTime now = LocalDateTime.now();
-        for (Party party : parties) {
-            if (party.getAppointmentTime() != null
-                && party.getAppointmentTime().isBefore(now)
-                && !"CLOSED".equals(party.getStatus())) {
-                party.close();
-            }
-        }
         List<Long> partyIds = parties.stream()
             .map(Party::getId)
             .toList();
