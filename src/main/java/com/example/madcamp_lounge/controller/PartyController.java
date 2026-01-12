@@ -92,11 +92,8 @@ public class PartyController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<PartyResponse>> list() {
-        List<Party> parties = partyQueryService.listParties();
-        List<PartyResponse> responses = parties.stream()
-            .map(PartyResponse::from)
-            .toList();
+    public ResponseEntity<List<PartyDetailResponse>> list() {
+        List<PartyDetailResponse> responses = partyQueryService.listParties();
         return ResponseEntity.ok(responses);
     }
 

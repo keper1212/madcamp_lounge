@@ -25,7 +25,7 @@ public class PartyQueryService {
     private final UserRepository userRepository;
 
     @Transactional
-    public List<Party> listParties() {
+    public List<PartyDetailResponse> listParties() {
         List<Party> parties = partyRepository.findAll();
         LocalDateTime now = LocalDateTime.now();
         for (Party party : parties) {
@@ -35,7 +35,31 @@ public class PartyQueryService {
                 party.close();
             }
         }
-        return parties;
+        List<Long> partyIds = parties.stream()
+            .map(Party::getId)
+            .toList();
+        List<PartyMember> allMembers = partyMemberRepository.findByPartyIdIn(partyIds);
+        Map<Long, List<PartyMember>> membersByParty = allMembers.stream()
+            .collect(Collectors.groupingBy(PartyMember::getPartyId));
+
+        List<Long> userIds = allMembers.stream()
+            .map(PartyMember::getUserId)
+            .distinct()
+            .toList();
+        Map<Long, User> userMap = userRepository.findAllById(userIds).stream()
+            .collect(Collectors.toMap(User::getId, user -> user));
+
+        return parties.stream()
+            .map(party -> {
+                List<PartyMember> members = membersByParty.getOrDefault(party.getId(), List.of());
+                List<PartyMemberResponse> memberResponses = members.stream()
+                    .map(member -> userMap.get(member.getUserId()))
+                    .filter(user -> user != null)
+                    .map(PartyMemberResponse::from)
+                    .toList();
+                return PartyDetailResponse.from(party, memberResponses);
+            })
+            .toList();
     }
 
     @Transactional(readOnly = true)
@@ -48,11 +72,12 @@ public class PartyQueryService {
         List<PartyMember> members = partyMemberRepository.findByPartyId(partyId);
         List<Long> userIds = members.stream()
             .map(PartyMember::getUserId)
+            .distinct()
             .toList();
         Map<Long, User> userMap = userRepository.findAllById(userIds).stream()
             .collect(Collectors.toMap(User::getId, user -> user));
-        List<PartyMemberResponse> memberResponses = userIds.stream()
-            .map(userMap::get)
+        List<PartyMemberResponse> memberResponses = members.stream()
+            .map(member -> userMap.get(member.getUserId()))
             .filter(user -> user != null)
             .map(PartyMemberResponse::from)
             .toList();
