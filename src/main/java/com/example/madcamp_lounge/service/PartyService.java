@@ -101,6 +101,46 @@ public class PartyService {
 
         partyMemberRepository.save(new PartyMember(party.getId(), userId));
         party.incrementCurrentCapacity();
+        party.updateStatusIfFull();
+        return Optional.of(party);
+    }
+
+    @Transactional
+    public Optional<Party> exitParty(Long userId, PartyJoinRequest request) {
+        Optional<Party> optionalParty = partyRepository.findById(request.getPartyId());
+        if (optionalParty.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Party party = optionalParty.get();
+        if (party.getHostId().equals(userId)) {
+            throw new IllegalStateException("host cannot exit");
+        }
+        if (!partyMemberRepository.existsByPartyIdAndUserId(party.getId(), userId)) {
+            return Optional.empty();
+        }
+
+        partyMemberRepository.deleteByPartyIdAndUserId(party.getId(), userId);
+        party.decrementCurrentCapacity();
+        if ("FULL".equals(party.getStatus())) {
+            party.updateStatusIfOpen();
+        }
+        return Optional.of(party);
+    }
+
+    @Transactional
+    public Optional<Party> closeParty(Long hostId, PartyJoinRequest request) {
+        Optional<Party> optionalParty = partyRepository.findById(request.getPartyId());
+        if (optionalParty.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Party party = optionalParty.get();
+        if (!party.getHostId().equals(hostId)) {
+            return Optional.empty();
+        }
+
+        party.close();
         return Optional.of(party);
     }
 }

@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -70,6 +71,26 @@ public class PartyController {
             .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
+    @DeleteMapping("/exit")
+    public ResponseEntity<PartyResponse> exit(@Valid @RequestBody PartyJoinRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getPrincipal() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Long userId;
+        try {
+            userId = Long.parseLong(auth.getPrincipal().toString());
+        } catch (NumberFormatException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Optional<Party> party = partyService.exitParty(userId, request);
+        return party
+            .map(value -> ResponseEntity.ok(PartyResponse.from(value)))
+            .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
     @GetMapping("/list")
     public ResponseEntity<List<PartyResponse>> list() {
         List<Party> parties = partyQueryService.listParties();
@@ -101,6 +122,26 @@ public class PartyController {
         }
 
         Optional<Party> party = partyService.updateParty(userId, request);
+        return party
+            .map(value -> ResponseEntity.ok(PartyResponse.from(value)))
+            .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    @PatchMapping("/delete")
+    public ResponseEntity<PartyResponse> delete(@Valid @RequestBody PartyJoinRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getPrincipal() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Long userId;
+        try {
+            userId = Long.parseLong(auth.getPrincipal().toString());
+        } catch (NumberFormatException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Optional<Party> party = partyService.closeParty(userId, request);
         return party
             .map(value -> ResponseEntity.ok(PartyResponse.from(value)))
             .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());

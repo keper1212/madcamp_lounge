@@ -124,4 +124,32 @@ public class Party {
         }
         this.currentCapacity += 1;
     }
+
+    public void updateStatusIfFull() {
+        if (this.currentCapacity != null
+            && this.targetCount != null
+            && this.currentCapacity >= this.targetCount) {
+            this.status = "FULL";
+        }
+    }
+
+    public void decrementCurrentCapacity() {
+        if (this.currentCapacity == null || this.currentCapacity <= 0) {
+            this.currentCapacity = 0;
+            return;
+        }
+        this.currentCapacity -= 1;
+    }
+
+    public void updateStatusIfOpen() {
+        if (this.currentCapacity != null
+            && this.targetCount != null
+            && this.currentCapacity < this.targetCount) {
+            this.status = "OPEN";
+        }
+    }
+
+    public void close() {
+        this.status = "CLOSED";
+    }
 }
