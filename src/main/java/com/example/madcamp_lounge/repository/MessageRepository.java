@@ -9,6 +9,8 @@ import org.springframework.data.repository.query.Param;
 
 public interface MessageRepository extends JpaRepository<Message, Long> {
     List<Message> findTop30ByRoomIdOrderBySentAtDesc(Long roomId);
+    long countByRoomId(Long roomId);
+    long countByRoomIdAndIdGreaterThan(Long roomId, Long messageId);
     List<Message> findTop30ByRoomIdAndSentAtBeforeOrderBySentAtDesc(
         Long roomId,
         LocalDateTime sentAt

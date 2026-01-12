@@ -28,9 +28,20 @@ public class ChatRoomMember {
     @Column(name = "joined_at", nullable = false)
     private LocalDateTime joinedAt;
 
+    @Column(name = "last_read_message_id")
+    private Long lastReadMessageId;
+
+    @Column(name = "last_read_at")
+    private LocalDateTime lastReadAt;
+
     public ChatRoomMember(Long roomId, Long userId) {
         this.roomId = roomId;
         this.userId = userId;
         this.joinedAt = LocalDateTime.now();
+    }
+
+    public void markRead(Long messageId) {
+        this.lastReadMessageId = messageId;
+        this.lastReadAt = LocalDateTime.now();
     }
 }

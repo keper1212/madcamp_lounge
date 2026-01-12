@@ -15,12 +15,15 @@ public class ChatRoomListResponse {
     private Long partyId;
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
+    @JsonProperty("unread_count")
+    private long unreadCount;
 
-    public static ChatRoomListResponse from(ChatRoom room) {
+    public static ChatRoomListResponse from(ChatRoom room, long unreadCount) {
         return new ChatRoomListResponse(
             room.getId(),
             room.getPartyId(),
-            room.getCreatedAt()
+            room.getCreatedAt(),
+            unreadCount
         );
     }
 }

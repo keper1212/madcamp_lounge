@@ -43,9 +43,31 @@ public class ChatRoomQueryService {
         if (roomIds.isEmpty()) {
             return List.of();
         }
+        Map<Long, ChatRoomMember> membershipMap = memberships.stream()
+            .collect(Collectors.toMap(
+                ChatRoomMember::getRoomId,
+                member -> member,
+                (first, second) -> first
+            ));
+
         List<ChatRoom> rooms = chatRoomRepository.findAllById(roomIds);
         return rooms.stream()
-            .map(ChatRoomListResponse::from)
+            .map(room -> {
+                ChatRoomMember member = membershipMap.get(room.getId());
+                long unreadCount = 0;
+                if (member != null) {
+                    Long lastReadMessageId = member.getLastReadMessageId();
+                    if (lastReadMessageId == null) {
+                        unreadCount = messageRepository.countByRoomId(room.getId());
+                    } else {
+                        unreadCount = messageRepository.countByRoomIdAndIdGreaterThan(
+                            room.getId(),
+                            lastReadMessageId
+                        );
+                    }
+                }
+                return ChatRoomListResponse.from(room, unreadCount);
+            })
             .collect(Collectors.toList());
     }
 
