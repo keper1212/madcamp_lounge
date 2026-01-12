@@ -15,6 +15,7 @@ public class PartyUpdateRequest {
 
     private String title;
     private String category;
+    private String content;
     @JsonProperty("appointment_time")
     private String time;
 

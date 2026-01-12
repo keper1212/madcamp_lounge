@@ -14,6 +14,7 @@ public class PartyResponse {
     private Long hostId;
     private String title;
     private String category;
+    private String content;
     @JsonProperty("appointment_time")
     private LocalDateTime appointmentTime;
     @JsonProperty("place_name")
@@ -32,6 +33,7 @@ public class PartyResponse {
             party.getHostId(),
             party.getTitle(),
             party.getCategory(),
+            party.getContent(),
             party.getAppointmentTime(),
             party.getPlaceName(),
             party.getTargetCount(),

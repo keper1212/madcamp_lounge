@@ -62,3 +62,17 @@ tasks.register('hashPassword', JavaExec) {
 		}
 	}
 }
+
+tasks.register('generateUserSql', JavaExec) {
+	group = 'application'
+	description = 'Generate INSERT SQL for users from a CSV file.'
+	classpath = sourceSets.main.runtimeClasspath
+	mainClass = 'com.example.madcamp_lounge.util.CsvUserImportGenerator'
+	if (project.hasProperty('csv')) {
+		args project.property('csv')
+	} else {
+		doFirst {
+			throw new GradleException("Usage: ./gradlew generateUserSql -Pcsv=/path/to/users.csv")
+		}
+	}
+}

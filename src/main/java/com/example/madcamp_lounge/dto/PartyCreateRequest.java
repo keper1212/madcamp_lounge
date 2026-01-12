@@ -16,6 +16,9 @@ public class PartyCreateRequest {
     @NotBlank(message = "category is required")
     private String category;
 
+    @NotBlank(message = "content is required")
+    private String content;
+
     @NotBlank(message = "time is required")
     @JsonProperty("appointment_time")
     private String time;

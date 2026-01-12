@@ -111,6 +111,12 @@ public class Party {
         }
     }
 
+    public void updateContent(String content) {
+        if (content != null) {
+            this.content = content;
+        }
+    }
+
     public void incrementCurrentCapacity() {
         if (this.currentCapacity == null) {
             this.currentCapacity = 1;

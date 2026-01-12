@@ -34,7 +34,7 @@ public class PartyService {
             hostId,
             request.getTitle(),
             request.getCategory(),
-            null,
+            request.getContent(),
             appointmentTime,
             request.getPlaceName(),
             null,
@@ -70,10 +70,14 @@ public class PartyService {
 
         String title = StringUtils.hasText(request.getTitle()) ? request.getTitle() : null;
         String category = StringUtils.hasText(request.getCategory()) ? request.getCategory() : null;
+        String content = StringUtils.hasText(request.getContent()) ? request.getContent() : null;
         String placeName = StringUtils.hasText(request.getPlaceName()) ? request.getPlaceName() : null;
         Integer targetCount = request.getTargetCount();
 
         party.updateDetails(title, category, appointmentTime, placeName, targetCount);
+        if (content != null) {
+            party.updateContent(content);
+        }
         return Optional.of(party);
     }
 
