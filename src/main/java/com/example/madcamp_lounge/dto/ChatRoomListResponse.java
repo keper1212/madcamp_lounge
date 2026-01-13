@@ -17,12 +17,15 @@ public class ChatRoomListResponse {
     private String partyTitle;
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
+    @JsonProperty("last_message_at")
+    private LocalDateTime lastMessageAt;
     @JsonProperty("unread_count")
     private long unreadCount;
 
     public static ChatRoomListResponse from(
         ChatRoom room,
         String partyTitle,
+        LocalDateTime lastMessageAt,
         long unreadCount
     ) {
         return new ChatRoomListResponse(
@@ -30,6 +33,7 @@ public class ChatRoomListResponse {
             room.getPartyId(),
             partyTitle,
             room.getCreatedAt(),
+            lastMessageAt,
             unreadCount
         );
     }
