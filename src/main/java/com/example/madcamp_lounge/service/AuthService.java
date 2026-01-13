@@ -58,6 +58,15 @@ public class AuthService {
         }
     }
 
+    @Transactional
+    public void logout(String refreshToken) {
+        if (refreshToken == null || refreshToken.isBlank()) {
+            return;
+        }
+        refreshTokenRepository.findByToken(refreshToken)
+            .ifPresent(refreshTokenRepository::delete);
+    }
+
     private AuthResponse issueTokens(User user) {
         String accessToken = jwtTokenProvider.generateAccessToken(user);
         String refreshToken = jwtTokenProvider.generateRefreshToken(user);

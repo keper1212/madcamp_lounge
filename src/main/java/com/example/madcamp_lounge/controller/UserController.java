@@ -2,6 +2,7 @@ package com.example.madcamp_lounge.controller;
 
 import com.example.madcamp_lounge.dto.AuthResponse;
 import com.example.madcamp_lounge.dto.LoginRequest;
+import com.example.madcamp_lounge.dto.LogoutRequest;
 import com.example.madcamp_lounge.dto.PasswordUpdateRequest;
 import com.example.madcamp_lounge.dto.RefreshRequest;
 import com.example.madcamp_lounge.service.AuthService;
@@ -39,6 +40,12 @@ public class UserController {
         return authService.refresh(request.getRefreshToken())
             .map(ResponseEntity::ok)
             .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@Valid @RequestBody LogoutRequest request) {
+        authService.logout(request.getRefreshToken());
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/password")
