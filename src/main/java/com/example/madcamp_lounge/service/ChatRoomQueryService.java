@@ -51,6 +51,13 @@ public class ChatRoomQueryService {
             ));
 
         List<ChatRoom> rooms = chatRoomRepository.findAllById(roomIds);
+        List<Long> partyIds = rooms.stream()
+            .map(ChatRoom::getPartyId)
+            .filter(partyId -> partyId != null)
+            .distinct()
+            .toList();
+        Map<Long, String> partyTitleMap = partyRepository.findAllById(partyIds).stream()
+            .collect(Collectors.toMap(Party::getId, Party::getTitle));
         return rooms.stream()
             .map(room -> {
                 ChatRoomMember member = membershipMap.get(room.getId());
@@ -66,7 +73,11 @@ public class ChatRoomQueryService {
                         );
                     }
                 }
-                return ChatRoomListResponse.from(room, unreadCount);
+                String partyTitle = null;
+                if (room.getPartyId() != null) {
+                    partyTitle = partyTitleMap.get(room.getPartyId());
+                }
+                return ChatRoomListResponse.from(room, partyTitle, unreadCount);
             })
             .collect(Collectors.toList());
     }
