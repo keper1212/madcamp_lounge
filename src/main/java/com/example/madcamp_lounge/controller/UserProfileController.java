@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -57,6 +58,14 @@ public class UserProfileController {
         }
 
         Optional<User> user = userService.updateProfile(userId, request);
+        return user
+            .map(value -> ResponseEntity.ok(UserProfileResponse.from(value)))
+            .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserProfileResponse> getProfile(@PathVariable Long userId) {
+        Optional<User> user = userService.getLoginUserById(userId);
         return user
             .map(value -> ResponseEntity.ok(UserProfileResponse.from(value)))
             .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());

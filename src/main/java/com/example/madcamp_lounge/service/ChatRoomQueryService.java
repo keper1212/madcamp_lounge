@@ -108,6 +108,10 @@ public class ChatRoomQueryService {
         }
 
         List<ChatRoomMember> members = chatRoomMemberRepository.findByRoomId(roomId);
+        ChatRoomMember selfMembership = chatRoomMemberRepository.findByRoomIdAndUserId(
+            roomId,
+            userId
+        );
         List<Long> userIds = members.stream()
             .map(ChatRoomMember::getUserId)
             .distinct()
@@ -156,6 +160,7 @@ public class ChatRoomQueryService {
             info,
             memberResponses,
             messageResponses,
+            selfMembership == null ? null : selfMembership.getLastReadMessageId(),
             lastMessage == null ? null : lastMessage.getSentAt(),
             lastMessage == null ? null : lastMessage.getMessageId(),
             hasMore

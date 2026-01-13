@@ -12,6 +12,8 @@ public class ChatRoomDetailResponse {
     private ChatRoomInfo room;
     private List<PartyMemberResponse> members;
     private List<ChatMessageResponse> messages;
+    @JsonProperty("last_read_message_id")
+    private Long lastReadMessageId;
     @JsonProperty("next_cursor")
     private LocalDateTime nextCursor;
     @JsonProperty("next_cursor_id")
