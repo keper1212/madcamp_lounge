@@ -19,6 +19,8 @@ public class ChatRoomListResponse {
     private LocalDateTime createdAt;
     @JsonProperty("last_message_at")
     private LocalDateTime lastMessageAt;
+    @JsonProperty("last_message_content")
+    private String lastMessageContent;
     @JsonProperty("unread_count")
     private long unreadCount;
 
@@ -26,6 +28,7 @@ public class ChatRoomListResponse {
         ChatRoom room,
         String partyTitle,
         LocalDateTime lastMessageAt,
+        String lastMessageContent,
         long unreadCount
     ) {
         return new ChatRoomListResponse(
@@ -34,6 +37,7 @@ public class ChatRoomListResponse {
             partyTitle,
             room.getCreatedAt(),
             lastMessageAt,
+            lastMessageContent,
             unreadCount
         );
     }

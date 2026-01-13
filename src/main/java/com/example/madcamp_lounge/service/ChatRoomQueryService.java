@@ -78,13 +78,21 @@ public class ChatRoomQueryService {
                     partyTitle = partyTitleMap.get(room.getPartyId());
                 }
                 LocalDateTime lastMessageAt = null;
+                String lastMessageContent = null;
                 Message lastMessage = messageRepository.findTop1ByRoomIdOrderBySentAtDesc(
                     room.getId()
                 );
                 if (lastMessage != null) {
                     lastMessageAt = lastMessage.getSentAt();
+                    lastMessageContent = lastMessage.getContent();
                 }
-                return ChatRoomListResponse.from(room, partyTitle, lastMessageAt, unreadCount);
+                return ChatRoomListResponse.from(
+                    room,
+                    partyTitle,
+                    lastMessageAt,
+                    lastMessageContent,
+                    unreadCount
+                );
             })
             .collect(Collectors.toList());
     }
