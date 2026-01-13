@@ -37,6 +37,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     }
 
     @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
+    }
+
+    @Bean
     public WebSocketErrorHandler webSocketErrorHandler(ObjectMapper objectMapper) {
         return new WebSocketErrorHandler(objectMapper);
     }
