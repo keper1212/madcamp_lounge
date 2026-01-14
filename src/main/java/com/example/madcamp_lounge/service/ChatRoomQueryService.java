@@ -162,9 +162,7 @@ public class ChatRoomQueryService {
             .toList();
 
         List<Message> messages = messageRepository.findTop30ByRoomIdOrderBySentAtDesc(roomId);
-        List<ChatMessageResponse> messageResponses = messages.stream()
-            .map(ChatMessageResponse::from)
-            .toList();
+        List<ChatMessageResponse> messageResponses = toMessageResponses(roomId, messages);
         ChatMessageResponse lastMessage = messageResponses.isEmpty()
             ? null
             : messageResponses.get(messageResponses.size() - 1);
@@ -234,9 +232,7 @@ public class ChatRoomQueryService {
             );
         }
 
-        List<ChatMessageResponse> messageResponses = messages.stream()
-            .map(ChatMessageResponse::from)
-            .toList();
+        List<ChatMessageResponse> messageResponses = toMessageResponses(roomId, messages);
         ChatMessageResponse lastMessage = messageResponses.isEmpty()
             ? null
             : messageResponses.get(messageResponses.size() - 1);
@@ -256,5 +252,20 @@ public class ChatRoomQueryService {
             lastMessage == null ? null : lastMessage.getMessageId(),
             hasMore
         ));
+    }
+
+    private List<ChatMessageResponse> toMessageResponses(Long roomId, List<Message> messages) {
+        long totalMembers = chatRoomMemberRepository.countByRoomId(roomId);
+        return messages.stream()
+            .map(message -> {
+                long readCount = chatRoomMemberRepository
+                    .countByRoomIdAndLastReadMessageIdGreaterThanEqual(
+                        roomId,
+                        message.getId()
+                    );
+                long unreadCount = Math.max(0, totalMembers - readCount);
+                return ChatMessageResponse.from(message, unreadCount);
+            })
+            .toList();
     }
 }

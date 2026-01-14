@@ -16,13 +16,16 @@ public class ChatMessageResponse {
     private String content;
     @JsonProperty("sent_at")
     private LocalDateTime sentAt;
+    @JsonProperty("unread_count")
+    private long unreadCount;
 
-    public static ChatMessageResponse from(Message message) {
+    public static ChatMessageResponse from(Message message, long unreadCount) {
         return new ChatMessageResponse(
             message.getId(),
             message.getSenderId(),
             message.getContent(),
-            message.getSentAt()
+            message.getSentAt(),
+            unreadCount
         );
     }
 }

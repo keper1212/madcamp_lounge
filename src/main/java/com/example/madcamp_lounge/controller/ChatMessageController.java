@@ -6,6 +6,7 @@ import com.example.madcamp_lounge.dto.ChatRoomEventResponse;
 import com.example.madcamp_lounge.dto.ChatReadRequest;
 import com.example.madcamp_lounge.dto.ChatReadResponse;
 import com.example.madcamp_lounge.entity.Message;
+import com.example.madcamp_lounge.repository.ChatRoomMemberRepository;
 import com.example.madcamp_lounge.service.ChatMessageService;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Controller;
 public class ChatMessageController {
     private final ChatMessageService chatMessageService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final ChatRoomMemberRepository chatRoomMemberRepository;
 
     @MessageMapping("/rooms/{roomId}")
     public void sendMessage(
@@ -40,7 +42,13 @@ public class ChatMessageController {
         }
 
         Message saved = chatMessageService.saveMessage(roomId, userId, request.getContent());
-        ChatMessageResponse response = ChatMessageResponse.from(saved);
+        // Mark sender as read for their own message so unread count excludes the sender.
+        chatMessageService.markRead(roomId, userId, saved.getId());
+        long totalMembers = chatRoomMemberRepository.countByRoomId(roomId);
+        long readCount = chatRoomMemberRepository
+            .countByRoomIdAndLastReadMessageIdGreaterThanEqual(roomId, saved.getId());
+        long unreadCount = Math.max(0, totalMembers - readCount);
+        ChatMessageResponse response = ChatMessageResponse.from(saved, unreadCount);
         messagingTemplate.convertAndSend("/topic/rooms/" + roomId, response);
         messagingTemplate.convertAndSend(
             "/topic/rooms",
