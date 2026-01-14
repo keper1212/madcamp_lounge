@@ -58,6 +58,22 @@ public class ChatRoomQueryService {
             .toList();
         Map<Long, String> partyTitleMap = partyRepository.findAllById(partyIds).stream()
             .collect(Collectors.toMap(Party::getId, Party::getTitle));
+        Map<Long, List<ChatRoomMember>> membersByRoomId = chatRoomMemberRepository
+            .findByRoomIdIn(roomIds)
+            .stream()
+            .collect(Collectors.groupingBy(ChatRoomMember::getRoomId));
+        List<Long> otherUserIds = rooms.stream()
+            .filter(room -> room.getPartyId() == null)
+            .flatMap(room -> membersByRoomId
+                .getOrDefault(room.getId(), List.of())
+                .stream())
+            .map(ChatRoomMember::getUserId)
+            .filter(memberUserId -> !memberUserId.equals(userId))
+            .distinct()
+            .toList();
+        Map<Long, User> otherUserMap = userRepository.findAllById(otherUserIds)
+            .stream()
+            .collect(Collectors.toMap(User::getId, user -> user));
         return rooms.stream()
             .map(room -> {
                 ChatRoomMember member = membershipMap.get(room.getId());
@@ -77,6 +93,26 @@ public class ChatRoomQueryService {
                 if (room.getPartyId() != null) {
                     partyTitle = partyTitleMap.get(room.getPartyId());
                 }
+                String otherName = null;
+                if (room.getPartyId() == null) {
+                    List<ChatRoomMember> roomMembers = membersByRoomId.get(room.getId());
+                    if (roomMembers != null) {
+                        for (ChatRoomMember roomMember : roomMembers) {
+                            if (roomMember.getUserId().equals(userId)) {
+                                continue;
+                            }
+                            User otherUser = otherUserMap.get(roomMember.getUserId());
+                            if (otherUser == null) {
+                                continue;
+                            }
+                            String nickname = otherUser.getNickname();
+                            otherName = (nickname == null || nickname.isBlank())
+                                ? otherUser.getName()
+                                : nickname;
+                            break;
+                        }
+                    }
+                }
                 LocalDateTime lastMessageAt = null;
                 String lastMessageContent = null;
                 Message lastMessage = messageRepository.findTop1ByRoomIdOrderBySentAtDesc(
@@ -89,6 +125,7 @@ public class ChatRoomQueryService {
                 return ChatRoomListResponse.from(
                     room,
                     partyTitle,
+                    otherName,
                     lastMessageAt,
                     lastMessageContent,
                     unreadCount

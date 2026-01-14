@@ -15,6 +15,8 @@ public class ChatRoomListResponse {
     private Long partyId;
     @JsonProperty("party_title")
     private String partyTitle;
+    @JsonProperty("other_name")
+    private String otherName;
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
     @JsonProperty("last_message_at")
@@ -27,6 +29,7 @@ public class ChatRoomListResponse {
     public static ChatRoomListResponse from(
         ChatRoom room,
         String partyTitle,
+        String otherName,
         LocalDateTime lastMessageAt,
         String lastMessageContent,
         long unreadCount
@@ -35,6 +38,7 @@ public class ChatRoomListResponse {
             room.getId(),
             room.getPartyId(),
             partyTitle,
+            otherName,
             room.getCreatedAt(),
             lastMessageAt,
             lastMessageContent,

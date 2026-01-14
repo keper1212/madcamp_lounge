@@ -1,8 +1,12 @@
 package com.example.madcamp_lounge.controller;
 
 import com.example.madcamp_lounge.dto.ChatHistoryResponse;
+import com.example.madcamp_lounge.dto.ChatRoomCreateRequest;
+import com.example.madcamp_lounge.dto.ChatRoomCreateResponse;
 import com.example.madcamp_lounge.dto.ChatRoomDetailResponse;
 import com.example.madcamp_lounge.dto.ChatRoomListResponse;
+import com.example.madcamp_lounge.entity.ChatRoom;
+import com.example.madcamp_lounge.service.ChatRoomCommandService;
 import com.example.madcamp_lounge.service.ChatRoomQueryService;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,6 +18,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/chat")
 public class ChatRoomController {
     private final ChatRoomQueryService chatRoomQueryService;
+    private final ChatRoomCommandService chatRoomCommandService;
 
     @GetMapping("/rooms")
     public ResponseEntity<List<ChatRoomListResponse>> listRooms() {
@@ -40,6 +48,29 @@ public class ChatRoomController {
         }
 
         return ResponseEntity.ok(chatRoomQueryService.listRooms(userId));
+    }
+
+    @PostMapping("/rooms")
+    public ResponseEntity<ChatRoomCreateResponse> createRoom(
+        @Valid @RequestBody ChatRoomCreateRequest request
+    ) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getPrincipal() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Long userId;
+        try {
+            userId = Long.parseLong(auth.getPrincipal().toString());
+        } catch (NumberFormatException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        ChatRoom room = chatRoomCommandService.findOrCreateDirectRoom(
+            userId,
+            request.getUserId()
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(ChatRoomCreateResponse.from(room));
     }
 
     @GetMapping("/chatroom")
@@ -90,5 +121,10 @@ public class ChatRoomController {
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<Void> handleForbidden() {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Void> handleBadRequest() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 }
