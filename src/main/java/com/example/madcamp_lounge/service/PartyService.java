@@ -43,10 +43,8 @@ public class PartyService {
             request.getContent(),
             appointmentTime,
             request.getPlaceName(),
-            null,
             request.getTargetCount(),
             1,
-            null,
             null,
             "OPEN"
         );

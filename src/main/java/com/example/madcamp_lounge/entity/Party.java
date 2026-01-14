@@ -37,8 +37,6 @@ public class Party {
     @Column(name = "place_name", nullable = false, length = 100)
     private String placeName;
 
-    @Column(name = "place_id")
-    private Long placeId;
 
     @Column(name = "target_count", nullable = false)
     private Integer targetCount;
@@ -46,8 +44,6 @@ public class Party {
     @Column(name = "current_capacity", nullable = false)
     private Integer currentCapacity;
 
-    @Column(name = "image_url", columnDefinition = "TEXT")
-    private String imageUrl;
 
     @Column(name = "chat_room_id")
     private Long chatRoomId;
@@ -65,10 +61,8 @@ public class Party {
         String content,
         LocalDateTime appointmentTime,
         String placeName,
-        Long placeId,
         Integer targetCount,
         Integer currentCapacity,
-        String imageUrl,
         Long chatRoomId,
         String status
     ) {
@@ -78,10 +72,8 @@ public class Party {
         this.content = content;
         this.appointmentTime = appointmentTime;
         this.placeName = placeName;
-        this.placeId = placeId;
         this.targetCount = targetCount;
         this.currentCapacity = currentCapacity;
-        this.imageUrl = imageUrl;
         this.chatRoomId = chatRoomId;
         this.status = status;
         this.createdAt = LocalDateTime.now();
