@@ -2,6 +2,7 @@ package com.example.madcamp_lounge.controller;
 
 import com.example.madcamp_lounge.dto.ChatMessageRequest;
 import com.example.madcamp_lounge.dto.ChatMessageResponse;
+import com.example.madcamp_lounge.dto.ChatRoomEventResponse;
 import com.example.madcamp_lounge.dto.ChatReadRequest;
 import com.example.madcamp_lounge.dto.ChatReadResponse;
 import com.example.madcamp_lounge.entity.Message;
@@ -41,6 +42,15 @@ public class ChatMessageController {
         Message saved = chatMessageService.saveMessage(roomId, userId, request.getContent());
         ChatMessageResponse response = ChatMessageResponse.from(saved);
         messagingTemplate.convertAndSend("/topic/rooms/" + roomId, response);
+        messagingTemplate.convertAndSend(
+            "/topic/rooms",
+            new ChatRoomEventResponse(
+                roomId,
+                userId,
+                saved.getContent(),
+                saved.getSentAt()
+            )
+        );
     }
 
     @MessageMapping("/rooms/{roomId}/read")
