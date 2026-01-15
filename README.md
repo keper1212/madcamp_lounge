@@ -130,13 +130,12 @@ JWT 기반 인증을 사용하며, Access/Refresh 토큰을 발급합니다.
 
 ## 📱 주요 기능 (Key Features)
 
-| 1. 로그인 | 2. 파티 | 3. 놀거리 추천 | 4. 채팅 | 5. 프로필 |
-  |:--:|:--:|:--:|:--:|:--:|
-| **로그인 기능**<br>이미 만들어둔 각자의 계정으로 로그인<br>첫 로그인시 프로필 탭으로 이동 후 비밀번호 변경 권장 dialog 출력 | **파티 생성 & 참여**<br>파티를 생성하고 참여하기를 눌러 파티 및 채팅방 가입 | **놀거리 카테고리
-  분류 & 추천**<br>현 위치에서 가장 가까운 5개의 가게 추천 | **채팅 기능**<br>채팅방 리스트 출력<br>개인 채팅, 단체 채팅 모두 지원 | **프로필 정보 확인**<br>프로필 수정 가능 |
-| ![img.png](readme_photo/login.png) | ![img.png](readme_photo/party_main.png) | ![img.png](readme_photo/play_main.png) | ![img.png](readme_photo/chatting_list.png) | ![img.png](readme_photo/profile_main.png) |
-| ![img.png](readme_photo/password_edit.png) | ![img.png](readme_photo/party_create.png) | ![img.png](readme_photo/play_detail.png) | ![img.png](readme_photo/chatting_room.png) | ![img.png](readme_photo/profile_edit.png) |
-|  | ![img.png](readme_photo/party_detail.png) | ![img.png](readme_photo/play_map.png) |  |  |
+| 1. 로그인 | 2. 파티 |                    3. 놀거리 추천                    | 4. 채팅 | 5. 프로필 |
+  |:--:|:--:|:-----------------------------------------------:|:--:|:--:|
+| **로그인 기능**<br>이미 만들어둔 각자의 계정으로 로그인<br>첫 로그인시 프로필 탭으로 이동 후 비밀번호 변경 권장 dialog 출력 | **파티 생성 & 참여**<br>파티를 생성하고 참여하기를 눌러 파티 및 채팅방 가입 | **놀거리 카테고리 분류 & 추천**<br>현 위치에서 가장 가까운 5개의 가게 추천 | **채팅 기능**<br>채팅방 리스트 출력<br>개인 채팅, 단체 채팅 모두 지원 | **프로필 정보 확인**<br>프로필 수정 가능 |
+| ![img.png](readme_photo/login.png) | ![img.png](readme_photo/party_main.png) |     ![img.png](readme_photo/play_main.png)      | ![img.png](readme_photo/chatting_list.png) | ![img.png](readme_photo/profile_main.png) |
+| ![img.png](readme_photo/password_edit.png) | ![img.png](readme_photo/party_create.png) |    ![img.png](readme_photo/play_detail.png)     | ![img.png](readme_photo/chatting_room.png) | ![img.png](readme_photo/profile_edit.png) |
+|  | ![img.png](readme_photo/party_detail.png) |      ![img.png](readme_photo/play_map.png)      |  |  |
 
 <br>
 
